@@ -1,0 +1,15 @@
+{
+  "name": "ether_transaction",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@slack/client": "^4.1.0",
+    "axios": "^0.18.0",
+    "dotenv": "^5.0.1",
+    "websocket": "^1.0.25"
+  },
+  "scripts": {
+    "start": "node main.js"
+  }
+}
