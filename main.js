@@ -5,6 +5,7 @@ const { IncomingWebhook } = require('@slack/client');
 const socketConnect = async function() {
   const client = new WebSocketClient();
   const address = process.env.ETHER_ADDRESS;
+  let opened = false;
   client.on('connectFailed', function(error) {
     console.log('Connect Error: ' + error.toString());
     setTimeout(socketConnect, 1000);
@@ -12,16 +13,19 @@ const socketConnect = async function() {
 
   client.on('connect', function(connection) {
     console.log('WebSocket Client Connected');
+    opened = true;
     const initParams = {'event': 'txlist', 'address': address};
     connection.sendUTF(JSON.stringify(initParams));
-    setInterval(() => connection.sendUTF(JSON.stringify({'event': 'ping'})),
+    setInterval(() => opened ? connection.sendUTF(JSON.stringify({'event': 'ping'})) : 1 ,
       1500);
     connection.on('error', function(error) {
       console.log('Connection Error: ' + error.toString());
+      opened = false;
       setTimeout(socketConnect, 1000);
     });
     connection.on('close', function() {
       console.log('echo-protocol Connection Closed');
+      opened = false;
       setTimeout(socketConnect, 1000);
     });
     connection.on('message', function(message) {
@@ -34,7 +38,7 @@ const socketConnect = async function() {
 
     });
   });
-
+  setTimeout(() => client.abort(), 1500);
   client.connect('ws://socket.etherscan.io/wshandler');
 };
 
